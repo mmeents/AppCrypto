@@ -1,21 +1,26 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using System;
-using StaticExtensions;
+using NUnit.Framework;
 using AppCrypto.IniFiles;
+using StaticExtensions;
 using System.IO;
 
+namespace TestAppCrypto {
+  public class Tests {
+    [SetUp]
+    public void Setup() {
+    }
 
-namespace AppCryptoTest {
-
-  [TestClass]
-  public class UnitIniFiles {
-
-    [TestMethod]
+    [Test]
+    public void Test1() {
+      Assert.Pass();
+    }
+    [Test]
     public void TestIniFiles1() {
-
-      string filePath = $"{DllExt.MMCommonsFolder()}\\TestIni.Ini";
-      if (!Directory.Exists(DllExt.MMConLocation() + "\\")) {
-        Directory.CreateDirectory(DllExt.MMConLocation() + "\\");
+      string fileFolder = $"{DllExt.MMCommonsFolder()}";
+      string filePath = $"{fileFolder}\\TestIni.Ini";
+      if (!Directory.Exists(fileFolder + "\\")) {
+        Directory.CreateDirectory(fileFolder + "\\");
       }
       Console.WriteLine( $"Filepath: {filePath}");
 
@@ -52,17 +57,17 @@ namespace AppCryptoTest {
       Console.WriteLine(iniFile3["TestSectionA"]["KeyD"]);
       Console.WriteLine(iniFile3["TestSectionA"]["KeyE"]);
       Console.WriteLine(iniFile3["TestSectionA"]["KeyF"]);
-    }
 
-    [TestMethod]
+      Assert.Pass();
+    }
+    [Test]
     public void TestIniFiles2() {
-      string filePath = $"{DllExt.MMCommonsFolder()}\\TestIni.Ini";
-      if (!Directory.Exists(DllExt.MMConLocation() + "\\")) {
-        Directory.CreateDirectory(DllExt.MMConLocation() + "\\");
+      string fileFolder = $"{DllExt.MMCommonsFolder()}";
+      string filePath = $"{fileFolder}\\TestIni.Ini";
+      if (!Directory.Exists(fileFolder + "\\")) {
+        Directory.CreateDirectory(fileFolder + "\\");
       }
-
+      Assert.Pass();
     }
-
-
   }
 }
