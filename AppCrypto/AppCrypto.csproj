@@ -6,8 +6,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company>$(Authors)</Company>
-    <Copyright>Copyright © 2022 Sky High Productions, LLC</Copyright>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <Copyright>Copyright © 2022 Sky High Productions, LLC</Copyright>    
     <RepositoryUrl>https://github.com/mmeents/AppCrypto</RepositoryUrl>
     <PackageTags>App Objects C#</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
