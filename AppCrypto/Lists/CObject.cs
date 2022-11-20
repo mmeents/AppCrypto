@@ -10,12 +10,13 @@ namespace AppCrypto.Lists {
   public class CInt32 : ConcurrentDictionary<Int32, object> {
     public CInt32() : base() { }
     public Boolean Contains(Int32 aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return (base[aKey] is not null); } catch { return false; }
     }
-    public new object this[Int32 aKey] { get { try { return base[aKey]; } catch { return null; } } set { base[aKey] = value; } }
+    public new object? this[Int32 aKey] { get { try { return base[aKey]; } catch { return null; } } 
+      set { if (value != null) {base[aKey] = value; } else { Remove(aKey); } } }
     public void Remove(Int32 aKey) {
       if (Contains(aKey)) {
-        base.TryRemove(aKey, out object outcast);
+        _ = base.TryRemove(aKey, out _);
       }
     }
   }
@@ -25,14 +26,11 @@ namespace AppCrypto.Lists {
   /// <remarks> C is for Concurrent. Most common type is string lookup version so lets call them Objects. </remarks>
   public class CObject : ConcurrentDictionary<string, object> {
     public CObject() : base() { }
-    public Boolean Contains(String aKey) { try { return (base[aKey] is Object); } catch { return false; } }
-    public new object this[string aKey] { get { return (Contains(aKey) ? base[aKey] : null); } set { base[aKey] = value; } }
-    public void Remove(string aKey) {
-      if (Contains(aKey)) {
-        object outcast;
-        base.TryRemove(aKey, out outcast);
-      }
+    public Boolean Contains(String aKey) { try { return (base[aKey] is not null); } catch { return false; } }
+    public new object? this[string aKey] { get { return Contains(aKey) ? base[aKey] : null; }
+      set { if (value != null) { base[aKey] = value; } else { Remove(aKey); } }
     }
+    public void Remove(string aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
   #endregion 
 
@@ -40,10 +38,14 @@ namespace AppCrypto.Lists {
   public class CBook : ConcurrentDictionary<decimal, object> {
     public CBook() : base() { }
     public Boolean Contains(decimal aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return (base[aKey] is not null); } catch { return false; }
     }
-    public new object this[decimal aKey] { get { return (Contains(aKey) ? base[aKey] : null); } set { base[aKey] = value; } }
-    public void Remove(decimal aKey) { if (Contains(aKey)) { base.TryRemove(aKey, out object outcast); } }
+    public new object? this[decimal aKey] { get { return (Contains(aKey) ? base[aKey] : null); }
+      set { if (value != null) { base[aKey] = value; } else { Remove(aKey); } }
+    }
+    public void Remove(decimal aKey) { 
+      if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } 
+    }
     public decimal ElementKeyAt(Int32 iIndex) {
       IEnumerable<decimal> lQS = base.Keys.OrderByDescending(x => (x));
       return lQS.ElementAt(iIndex);
@@ -56,16 +58,16 @@ namespace AppCrypto.Lists {
     public Int16 Nonce = Int16.MaxValue;
     public Int16 Height => Convert.ToInt16(Int16.MaxValue.AsInt() - this.Nonce.AsInt());
     public Boolean Contains(Int16 aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return (base[aKey] is not null); } catch { return false; }
     }
     public CCache16() : base() { }
     public object Add(object aObj) { Nonce--; base[Nonce] = aObj; return aObj; }
-    public object Pop() {
-      Object aR = null;
+    public object? Pop() {
+      Object? aR = null;
       if (Keys.Count > 0) { base.TryRemove(base.Keys.OrderBy(x => x).Last(), out aR); }
       return aR;
     }
-    public void Remove(Int16 aKey) { if (Contains(aKey)) { base.TryRemove(aKey, out object outcast); } }
+    public void Remove(Int16 aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
 
   /// <summary>ConcurrentDictionary with Int32 key ordered from Max to Min, add smallest, pop largest last is a CCache32 </summary>  
@@ -73,16 +75,16 @@ namespace AppCrypto.Lists {
     public Int32 Nonce = Int32.MaxValue;
     public Int32 Height => Int32.MaxValue - Nonce;
     public Boolean Contains(Int32 aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return (base[aKey] is not null); } catch { return false; }
     }
     public CCache32() : base() { }
     public object Add(object aObj) { Nonce--; base[Nonce] = aObj; return aObj; }
-    public object Pop() {
-      Object aR = null;
+    public object? Pop() {
+      Object? aR = null;
       if (Keys.Count > 0) { base.TryRemove(base.Keys.OrderBy(x => x).Last(), out aR); }
       return aR;
     }
-    public void Remove(Int32 aKey) { if (Contains(aKey)) { base.TryRemove(aKey, out object outcast); } }
+    public void Remove(Int32 aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
 
   /// <summary>ConcurrentDictionary with Int36 key ordered from Max to Min, add smallest, pop largest last is a CCache64</summary>  
@@ -90,16 +92,16 @@ namespace AppCrypto.Lists {
     public Int64 Nonce = Int64.MaxValue;
     public Int64 Height { get { return Int64.MaxValue - Nonce; } }
     public Boolean Contains(Int64 aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return base[aKey] is not null; } catch { return false; }
     }
     public CCache64() : base() { }
     public object Add(object aObj) { Nonce--; base[Nonce] = aObj; return aObj; }
-    public object Pop() {
-      Object aR = null;
+    public object? Pop() {
+      Object? aR = null;
       if (Keys.Count > 0) { base.TryRemove(base.Keys.OrderBy(x => x).Last(), out aR); }
       return aR;
     }
-    public void Remove(Int64 aKey) { if (Contains(aKey)) { base.TryRemove(aKey, out object outcast); } }
+    public void Remove(Int64 aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
 
   #endregion
@@ -111,15 +113,15 @@ namespace AppCrypto.Lists {
     public Int16 Nonce = Int16.MinValue;
     public CQueue16() : base() { }
     public Boolean Contains(Int16 aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return (base[aKey] is not null); } catch { return false; }
     }
     public object Add(object aObj) { Nonce++; base[Nonce] = aObj; return aObj; }
-    public object Pop() {
-      Object aR = null;
+    public object? Pop() {
+      Object? aR = null;
       if (Keys.Count > 0) { base.TryRemove(base.Keys.OrderBy(x => x).First(), out aR); }
       return aR;
     }
-    public void Remove(Int16 aKey) { if (Contains(aKey)) { base.TryRemove(aKey, out object outcast); } }
+    public void Remove(Int16 aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
 
   /// <summary>ConcurrentDictionary with Int32 key ordered from Min to Max, adds largest, pops smallest is a CQueue32 lifetime total not to exceed 4,294,967,295 items.</summary>  
@@ -127,16 +129,16 @@ namespace AppCrypto.Lists {
     public Int32 Nonce = Int32.MinValue;
     public CQueue32() : base() { }
     public Boolean Contains(Int32 aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return (base[aKey] is not null); } catch { return false; }
     }
     public object Add(object aObj) { Nonce++; base[Nonce] = aObj; return aObj; }
-    public object Pop() {
-      Object aR = null;
+    public object? Pop() {
+      Object? aR = null;
       if (Keys.Count > 0) { base.TryRemove(base.Keys.OrderBy(x => x).First(), out aR); }
       return aR;
     }
     public void Remove(Int32 aKey) {
-      if (Contains(aKey)) { base.TryRemove(aKey, out object outcast); }
+      if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); }
     }
   }
 
@@ -145,19 +147,15 @@ namespace AppCrypto.Lists {
     public Int64 Nonce = Int64.MinValue;
     public CQueue64() : base() { }
     public Boolean Contains(Int64 aKey) {
-      try { return (base[aKey] is Object); } catch { return false; }
+      try { return (base[aKey] is not null); } catch { return false; }
     }
     public object Add(object aObj) { Nonce++; base[Nonce] = aObj; return aObj; }
-    public object Pop() {
-      Object aR = null;
+    public object? Pop() {
+      Object? aR = null;
       if (Keys.Count > 0) { base.TryRemove(base.Keys.OrderBy(x => x).First(), out aR); }
       return aR;
     }
-    public void Remove(Int64 aKey) {
-      if (Contains(aKey)) {
-        base.TryRemove(aKey, out object outcast);
-      }
-    }
+    public void Remove(Int64 aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
 
   #endregion

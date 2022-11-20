@@ -18,8 +18,8 @@ namespace AppCrypto.IniFiles {
 			get { return Line.Length / Environment.NewLine.Length + 1; }
 			set {
 				if (value < 1)
-					throw new ArgumentOutOfRangeException("Cannot set Amount to less than 1.");
-				StringBuilder build = new StringBuilder();
+					throw new ArgumentOutOfRangeException("Amount", "Amount to less than 1.");
+				StringBuilder build = new();
 				for (int i = 1; i < value; i++)
 					build.Append(Environment.NewLine);
 				Content = build.ToString();

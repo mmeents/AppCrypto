@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace AppCrypto.IniFiles {
 	/// <summary>Represents one key-value pair.</summary>
 	public class IniFileValue : IniFileElement {
-		private string key;
-		private string value;
-		private readonly string textOnTheRight; // only if qoutes are on, e.g. "Name = 'Jack' text-on-the-right"
-		private string inlineComment, inlineCommentChar;
+		private string key = "";
+		private string value = "";
+		private readonly string textOnTheRight = ""; // only if qoutes are on, e.g. "Name = 'Jack' text-on-the-right"
+		private string inlineComment = "", inlineCommentChar = "";
 		private IniFileValue() : base() { }
 		/// <summary>Initializes a new instance IniFileValue.</summary>
 		/// <param name="content">Actual content of a line in an INI file. Initializer assumes that it is valid.</param>
@@ -26,9 +26,9 @@ namespace AppCrypto.IniFiles {
 			if (split0.Length > 0) {
 				if (IniFileSettings.AllowInlineComments) {
 					IniFileSettings.IndexOfAnyResult result = IniFileSettings.IndexOfAny(split1, IniFileSettings.CommentChars);
-					if (result.index != -1) {
-						inlineComment = split1.Substring(result.index + result.any.Length);
-						split1 = split1.Substring(0, result.index).TrimEnd();
+					if (result.index != -1 && result.any != null) {
+						inlineComment = split1[(result.index + result.any.Length)..];
+						split1 = split1[..result.index].TrimEnd();
 						inlineCommentChar = result.any;
 					}
 				}
@@ -39,14 +39,14 @@ namespace AppCrypto.IniFiles {
 						if (IniFileSettings.AllowTextOnTheRight) {
 							lastQuotePos = split1.LastIndexOf(quoteChar);
 							if (lastQuotePos != split1.Length - 1)
-								textOnTheRight = split1.Substring(lastQuotePos + 1);
+								textOnTheRight = split1[(lastQuotePos + 1)..];
 						} else
 							lastQuotePos = split1.Length - 1;
 						if (lastQuotePos > 0) {
 							if (split1.Length == 2)
 								split1 = "";
 							else
-								split1 = split1.Substring(1, lastQuotePos - 1);
+								split1 = split1[1..lastQuotePos];
 						}
 					}
 				}
@@ -81,12 +81,12 @@ namespace AppCrypto.IniFiles {
 			BeforeEvery, AfterKey, BeforeVal, AfterVal
 		}
 		/// <summary>Creates a formatting string basing on an actual content of a line.</summary>
-		public string ExtractFormat(string content) {
+		public static string ExtractFormat(string content) {
 			//bool afterKey = false; bool beforeVal = false; bool beforeEvery = true; bool afterVal = false;
 			//return IniFileSettings.DefaultValueFormatting;
 			FormatExtractorState pos = FormatExtractorState.BeforeEvery;
 			char currC; string insideWhiteChars = ""; string theWhiteChar; ;
-			StringBuilder form = new StringBuilder();
+			StringBuilder form = new();
 			for (int i = 0; i < content.Length; i++) {
 				currC = content[i];
 				if (char.IsLetterOrDigit(currC)) {
@@ -123,7 +123,7 @@ namespace AppCrypto.IniFiles {
 				form.Append('$');
 			}
 			string ret = form.ToString();
-			if (ret.IndexOf(';') == -1)
+			if (!ret.Contains(';'))
 				ret += "   ;";
 			return ret;
 		}
@@ -136,7 +136,7 @@ namespace AppCrypto.IniFiles {
 		/// <param name="formatting">Formatting template, where '?'-key, '='-equality sign, '$'-value, ';'-inline comments.</param>
 		public void Format(string formatting) {
 			char currC;
-			StringBuilder build = new StringBuilder();
+			StringBuilder build = new();
 			for (int i = 0; i < formatting.Length; i++) {
 				currC = formatting[i];
 				if (currC == '?')
@@ -165,7 +165,7 @@ namespace AppCrypto.IniFiles {
 		/// <param name="key">Name of value</param>
 		/// <param name="value">Value</param>
 		public IniFileValue CreateNew(string key, string value) {
-			IniFileValue ret = new IniFileValue {
+			IniFileValue ret = new() {
 				key = key, value = value
 			};
 			if (IniFileSettings.PreserveFormatting) {
@@ -196,7 +196,7 @@ namespace AppCrypto.IniFiles {
 		/// <param name="key">Value name.</param>
 		/// <param name="value">Associated value.</param>
 		public static IniFileValue FromData(string key, string value) {
-			IniFileValue ret = new IniFileValue {
+			IniFileValue ret = new() {
 				key = key, value = value
 			};
 			ret.FormatDefault();

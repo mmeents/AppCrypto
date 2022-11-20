@@ -6,8 +6,8 @@ using System.IO;
 namespace AppCrypto.IniFiles {
 	/// <summary>Object model for INI file, which stores a whole structure in memory.</summary>
 	public class IniFile {
-		internal List<IniFileSection> sections = new List<IniFileSection>();
-		internal List<IniFileElement> elements = new List<IniFileElement>();
+		internal List<IniFileSection> sections = new();
+		internal List<IniFileElement> elements = new();
 
 		/// <summary>Creates new instance of IniFile.</summary>
 		public IniFile() {
@@ -16,12 +16,12 @@ namespace AppCrypto.IniFiles {
 		/// <param name="sectionName">Name of section to search for. If not found, new one is created.</param>
 		public IniFileSection this[string sectionName] {
 			get {
-				IniFileSection sect = GetSection(sectionName);
+				IniFileSection? sect = GetSection(sectionName);
 				if (sect != null)
 					return sect;
 				IniFileSectionStart start;
 				if (sections.Count > 0) {
-					IniFileSectionStart prev = sections[sections.Count - 1].sectionStart;
+					IniFileSectionStart prev = sections[^1].sectionStart;
 					start = prev.CreateNew(sectionName);
 				} else
 					start = IniFileSectionStart.FromName(sectionName);
@@ -32,7 +32,7 @@ namespace AppCrypto.IniFiles {
 			}
 		}
 
-		IniFileSection GetSection(string name) {
+		IniFileSection? GetSection(string name) {
 			string lower = name.ToLowerInvariant();
 			for (int i = 0; i < sections.Count; i++)
 				if (sections[i].Name == name || (!IniFileSettings.CaseSensitive && sections[i].Name.ToLowerInvariant() == lower))
@@ -53,7 +53,7 @@ namespace AppCrypto.IniFiles {
 				File.Create(path).Close();
 				return new IniFile();
 			}
-			IniFileReader reader = new IniFileReader(path);
+			IniFileReader reader = new(path);
 			IniFile ret = FromStream(reader);
 			reader.Close();
 			return ret;
@@ -61,13 +61,13 @@ namespace AppCrypto.IniFiles {
 		/// <summary>Creates a new IniFile from elements collection (Advanced member).</summary>
 		/// <param name="elemes">Elements collection.</param>
 		public static IniFile FromElements(IEnumerable<IniFileElement> elemes) {
-			IniFile ret = new IniFile();
+			IniFile ret = new();
 			ret.elements.AddRange(elemes);
 			if (ret.elements.Count > 0) {
-				IniFileSection section = null;
+				IniFileSection? section = null;
 				IniFileElement el;
 
-				if (ret.elements[ret.elements.Count - 1] is IniFileBlankLine)
+				if (ret.elements[^1] is IniFileBlankLine)
 					ret.elements.RemoveAt(ret.elements.Count - 1);
 				for (int i = 0; i < ret.elements.Count; i++) {
 					el = ret.elements[i];
@@ -89,11 +89,13 @@ namespace AppCrypto.IniFiles {
 		}
 		/// <summary>Reads a INI file from a stream.</summary>
 		public static IniFile FromStream(IniFileReader reader) {
-			return FromElements(reader.ReadElementsToEnd());
+			if (reader == null) throw new Exception("reader cannot be null.");
+			var theRead = reader.ReadElementsToEnd();
+			return FromElements(theRead);						
 		}
 		/// <summary>Writes a INI file to a disc, using options in IniFileSettings class</summary>
 		public void Save(string path) {
-			IniFileWriter writer = new IniFileWriter(path);
+      IniFileWriter writer = new(path);
 			Save(writer);
 			writer.Close();
 		}
@@ -104,7 +106,7 @@ namespace AppCrypto.IniFiles {
 		/// <summary>Deletes a section and all it's values and comments. No exception is thrown if there is no section of requested name.</summary>
 		/// <param name="name">Name of section to delete.</param>
 		public void DeleteSection(string name) {
-			IniFileSection section = GetSection(name);
+			IniFileSection? section = GetSection(name);
 			if (section == null)
 				return;
 			IniFileSectionStart sect = section.sectionStart;
@@ -133,7 +135,7 @@ namespace AppCrypto.IniFiles {
 				if (preserveIntendation) {
 					if (el is IniFileSectionStart)
 						el.Intendation = lastSectIntend;
-					else if (el is IniFileCommentary && i != elements.Count - 1 && !(elements[i + 1] is IniFileBlankLine))
+					else if (el is IniFileCommentary && i != elements.Count - 1 && elements[i + 1] is not IniFileBlankLine)
 						el.Intendation = elements[i + 1].Intendation;
 					else
 						el.Intendation = lastValIntend;
@@ -142,10 +144,10 @@ namespace AppCrypto.IniFiles {
 		}
 		/// <summary>Joins sections which are definied more than one time.</summary>
 		public void UnifySections() {
-			Dictionary<string, int> dict = new Dictionary<string, int>();
+			Dictionary<string, int> dict = new();
 			IniFileSection sect;
 			IniFileElement el;
-			IniFileValue val;
+			IniFileValue? val = null;
 			int index;
 			for (int i = 0; i < sections.Count; i++) {
 				sect = sections[i];
@@ -157,13 +159,17 @@ namespace AppCrypto.IniFiles {
 						el = sect.elements[j];
 						if (!(j == sect.elements.Count - 1 && el is IniFileCommentary))
 							elements.Remove(el);
-						if (!(el is IniFileBlankLine)) {
+						if (el is not IniFileBlankLine) {
 							elements.Insert(index, el);
-							val = this[sect.Name].FirstValue();
+							var thisSectName = this[sect.Name];
+							if (thisSectName != null) {
+								val = thisSectName.FirstValue();
+							}							
 							if (val != null)
 								el.Intendation = val.Intendation;
-							else
-								el.Intendation = this[sect.Name].sectionStart.Intendation;
+							else {
+                if (thisSectName != null) el.Intendation = thisSectName.sectionStart.Intendation;
+							}								
 						}
 					}
 				} else
@@ -176,13 +182,13 @@ namespace AppCrypto.IniFiles {
 			get {
 				if (elements.Count > 0)
 					if (elements[0] is IniFileCommentary commentary && !(!IniFileSettings.SeparateHeader
-						&& elements.Count > 1 && !(elements[1] is IniFileBlankLine)))
+						&& elements.Count > 1 && elements[1] is not IniFileBlankLine))
 						return commentary.Comment;
 				return "";
 			}
 			set {
 				if (elements.Count > 0 && elements[0] is IniFileCommentary commentary && !(!IniFileSettings.SeparateHeader
-					&& elements.Count > 1 && !(elements[1] is IniFileBlankLine))) {
+					&& elements.Count > 1 && elements[1] is not IniFileBlankLine)) {
 					if (value == "") {
 						elements.RemoveAt(0);
 						if (IniFileSettings.SeparateHeader && elements.Count > 0 && elements[0] is IniFileBlankLine)
@@ -190,7 +196,7 @@ namespace AppCrypto.IniFiles {
 					} else
 						commentary.Comment = value;
 				} else if (value != "") {
-					if ((elements.Count == 0 || !(elements[0] is IniFileBlankLine)) && IniFileSettings.SeparateHeader)
+					if ((elements.Count == 0 || elements[0] is not IniFileBlankLine) && IniFileSettings.SeparateHeader)
 						elements.Insert(0, new IniFileBlankLine(1));
 					elements.Insert(0, IniFileCommentary.FromComment(value));
 				}
@@ -200,27 +206,28 @@ namespace AppCrypto.IniFiles {
 		public string Foot {
 			get {
 				if (elements.Count > 0) {
-					if (elements[elements.Count - 1] is IniFileCommentary commentary)
+					if (elements[^1] is IniFileCommentary commentary)
 						return commentary.Comment;
 				}
 				return "";
 			}
 			set {
 				if (value == "") {
-					if (elements.Count > 0 && elements[elements.Count - 1] is IniFileCommentary) {
+					if (elements.Count > 0 && elements[^1] is IniFileCommentary) {
 						elements.RemoveAt(elements.Count - 1);
-						if (elements.Count > 0 && elements[elements.Count - 1] is IniFileBlankLine)
+						if (elements.Count > 0 && elements[^1] is IniFileBlankLine)
 							elements.RemoveAt(elements.Count - 1);
 					}
 				} else {
 					if (elements.Count > 0) {
-						if (elements[elements.Count - 1] is IniFileCommentary commentary)
+						if (elements[^1] is IniFileCommentary commentary)
 							commentary.Comment = value;
 						else
 							elements.Add(IniFileCommentary.FromComment(value));
 						if (elements.Count > 2) {
-							if (!(elements[elements.Count - 2] is IniFileBlankLine) && IniFileSettings.SeparateHeader)
+							if (elements[^2] is not IniFileBlankLine && IniFileSettings.SeparateHeader) { 
 								elements.Insert(elements.Count - 1, new IniFileBlankLine(1));
+							}
 							else if (value == "")
 								elements.RemoveAt(elements.Count - 2);
 						}

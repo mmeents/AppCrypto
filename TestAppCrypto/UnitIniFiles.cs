@@ -6,15 +6,11 @@ using StaticExtensions;
 using System.IO;
 
 namespace TestAppCrypto {
-  public class Tests {
+  public class TestIniFile {
     [SetUp]
     public void Setup() {
     }
 
-    [Test]
-    public void Test1() {
-      Assert.Pass();
-    }
     [Test]
     public void TestIniFiles1() {
       string fileFolder = $"{DllExt.MMCommonsFolder()}";
@@ -67,6 +63,7 @@ namespace TestAppCrypto {
       if (!Directory.Exists(fileFolder + "\\")) {
         Directory.CreateDirectory(fileFolder + "\\");
       }
+      Console.WriteLine($"FilePath {filePath}{Environment.NewLine}FileFolder: {fileFolder}");
       Assert.Pass();
     }
   }

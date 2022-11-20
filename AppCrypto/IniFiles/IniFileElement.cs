@@ -22,7 +22,7 @@ namespace AppCrypto.IniFiles {
 		/// <summary>Gets or sets a string of white characters which precedes any meaningful content of a line.</summary>
 		public string Intendation {
 			get {
-				StringBuilder intend = new StringBuilder();
+				StringBuilder intend = new();
 				for (int i = 0; i < formatting.Length; i++) {
 					if (!char.IsWhiteSpace(formatting[i])) break;
 					intend.Append(formatting[i]);
@@ -49,7 +49,7 @@ namespace AppCrypto.IniFiles {
 				string intendation = Intendation;
 				if (_line.Contains(Environment.NewLine)) {
 					string[] lines = _line.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-					StringBuilder ret = new StringBuilder();
+					StringBuilder ret = new();
 					ret.Append(lines[0]);
 					for (int i = 1; i < lines.Length; i++)
 						ret.Append(Environment.NewLine + intendation + lines[i]);

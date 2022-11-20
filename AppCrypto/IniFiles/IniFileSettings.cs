@@ -141,7 +141,7 @@ namespace AppCrypto.IniFiles {
 				if (test.TrimStart().Length > 0)
 					throw new ArgumentException("DefaultValueFormatting property cannot contain other characters than [,$,] and white spaces.");
 				if (!(value.IndexOf('[') < value.IndexOf('$') && value.IndexOf('$') < value.IndexOf(']')
-					&& (value.IndexOf(';') == -1 || value.IndexOf(']') < value.IndexOf(';'))))
+					&& (!value.Contains(';') || value.IndexOf(']') < value.IndexOf(';'))))
 					throw new ArgumentException("Special charcters in the formatting strings are in the incorrect order. The valid is: [, $, ].");
 				IniFileSettings.defaultSectionFormatting = value;
 			}
@@ -158,8 +158,8 @@ namespace AppCrypto.IniFiles {
 				if (test.TrimStart().Length > 0)
 					throw new ArgumentException("DefaultValueFormatting property cannot contain other characters than ?,$,= and white spaces.");
 				if (!(((value.IndexOf('?') < value.IndexOf('=') && value.IndexOf('=') < value.IndexOf('$'))
-					|| (value.IndexOf('=') == -1 && test.IndexOf('?') < value.IndexOf('$')))
-					&& (value.IndexOf(';') == -1 || value.IndexOf('$') < value.IndexOf(';'))))
+					|| (!value.Contains('=') && test.IndexOf('?') < value.IndexOf('$')))
+					&& (!value.Contains(';') || value.IndexOf('$') < value.IndexOf(';'))))
 					throw new ArgumentException("Special charcters in the formatting strings are in the incorrect order. The valid is: ?, =, $.");
 				IniFileSettings.defaultValueFormatting = value;
 			}
@@ -170,7 +170,7 @@ namespace AppCrypto.IniFiles {
 		public static string SectionOpenBracket {
 			get { return IniFileSettings.sectionOpenBracket; }
 			set {
-				IniFileSettings.sectionOpenBracket = value ?? throw new ArgumentNullException("SectionCloseBracket");
+				IniFileSettings.sectionOpenBracket = value ?? throw new ArgumentNullException("SectionOpenBracket");
 			}
 		}
 		/// <summary>Gets or sets string used as equality sign (which separates value from key). Default "=".</summary>
@@ -189,34 +189,34 @@ namespace AppCrypto.IniFiles {
 
 		internal static string TrimLeft(ref string str) {
 			int i = 0;
-			StringBuilder ret = new StringBuilder();
+			StringBuilder ret = new();
 			while (i < str.Length && char.IsWhiteSpace(str, i)) {
 				ret.Append(str[i]);
 				i++;
 			}
 			if (str.Length > i)
-				str = str.Substring(i);
+				str = str[i..];
 			else
 				str = "";
 			return ret.ToString();
 		}
 		internal static string TrimRight(ref string str) {
 			int i = str.Length - 1;
-			StringBuilder build = new StringBuilder();
+			StringBuilder build = new();
 			while (i >= 0 && char.IsWhiteSpace(str, i)) {
 				build.Append(str[i]);
 				i--;
 			}
-			StringBuilder reversed = new StringBuilder();
+			StringBuilder reversed = new();
 			for (int j = build.Length - 1; j >= 0; j--)
 				reversed.Append(build[j]);
 			if (str.Length - i > 0)
-				str = str.Substring(0, i + 1);
+				str = str[..(i + 1)];
 			else
 				str = "";
 			return reversed.ToString();
 		}
-		internal static string StartsWith(string line, string[] array) {
+		internal static string? StartsWith(string line, string[] array) {
 			if (array == null) return null;
 			for (int i = 0; i < array.Length; i++)
 				if (line.StartsWith(array[i]))
@@ -225,8 +225,8 @@ namespace AppCrypto.IniFiles {
 		}
 		internal struct IndexOfAnyResult {
 			public int index;
-			public string any;
-			public IndexOfAnyResult(int i, string _any) {
+			public string? any;
+			public IndexOfAnyResult(int i, string? _any) {
 				any = _any; index = i;
 			}
 		}
@@ -236,7 +236,7 @@ namespace AppCrypto.IniFiles {
 					return new IndexOfAnyResult(text.IndexOf(array[i]), array[i]);
 			return new IndexOfAnyResult(-1, null);
 		}
-		internal static string OfAny(int index, string text, string[] array) {
+		internal static string? OfAny(int index, string text, string[] array) {
 			for (int i = 0; i < array.Length; i++)
 				if (text.Length - index >= array[i].Length && text.Substring(index, array[i].Length) == array[i])
 					return array[i];

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace AppCrypto.IniFiles {
 	/// <summary>Represents section's start line, e.g. "[SectionName]".</summary>
 	public class IniFileSectionStart : IniFileElement {
-		private string sectionName;
-		private readonly string textOnTheRight;
-		private string inlineComment;
+		private string sectionName = "";
+		private readonly string textOnTheRight = "";
+		private string inlineComment = "";
 		private IniFileSectionStart() : base() { }
 		/// <summary>Initializes a new instance IniFileSectionStart</summary>
 		/// <param name="content">Actual content of a line in an INI file. Initializer assumes that it is valid.</param>
@@ -18,19 +18,19 @@ namespace AppCrypto.IniFiles {
 			content = content.TrimStart();
 			if (IniFileSettings.AllowInlineComments) {
 				IniFileSettings.IndexOfAnyResult result = IniFileSettings.IndexOfAny(content, IniFileSettings.CommentChars);
-				if (result.index > content.IndexOf(IniFileSettings.SectionCloseBracket)) {
-					inlineComment = content.Substring(result.index + result.any.Length);
-					content = content.Substring(0, result.index);
+				if (result.index > content.IndexOf(IniFileSettings.SectionCloseBracket) && result.any != null) {
+					inlineComment = content[(result.index + result.any.Length)..];
+					content = content[..result.index];
 				}
 			}
 			if (IniFileSettings.AllowTextOnTheRight) {
 				int closeBracketPos = content.LastIndexOf(IniFileSettings.SectionCloseBracket);
 				if (closeBracketPos != content.Length - 1) {
-					textOnTheRight = content.Substring(closeBracketPos + 1);
-					content = content.Substring(0, closeBracketPos);
+					textOnTheRight = content[(closeBracketPos + 1)..];
+					content = content[..closeBracketPos];
 				}
 			}
-			sectionName = content.Substring(IniFileSettings.SectionOpenBracket.Length, content.Length - IniFileSettings.SectionCloseBracket.Length - IniFileSettings.SectionOpenBracket.Length).Trim();
+			sectionName = content[IniFileSettings.SectionOpenBracket.Length..^IniFileSettings.SectionCloseBracket.Length].Trim();
 			Content = content;
 			Format();
 		}
@@ -63,7 +63,7 @@ namespace AppCrypto.IniFiles {
 		/// <summary>Creates a new IniFileSectionStart object basing on a name of section and the formatting style of this section.</summary>
 		/// <param name="sectName">Name of the new section</param>
 		public IniFileSectionStart CreateNew(string sectName) {
-			IniFileSectionStart ret = new IniFileSectionStart {
+			IniFileSectionStart ret = new() {
 				sectionName = sectName
 			};
 			if (IniFileSettings.PreserveFormatting) {
@@ -80,7 +80,7 @@ namespace AppCrypto.IniFiles {
 			bool beforeEvery = true;
 			char currC;
 			string insideWhiteChars = "";
-			StringBuilder form = new StringBuilder();
+			StringBuilder form = new();
 			for (int i = 0; i < content.Length; i++) {
 				currC = content[i];
 				if (char.IsLetterOrDigit(currC) && beforeS) {
@@ -100,7 +100,7 @@ namespace AppCrypto.IniFiles {
 				}
 			}
 			string ret = form.ToString();
-			if (ret.IndexOf(';') == -1)
+			if (!ret.Contains(';'))
 				ret += "   ;";
 			return ret;
 		}
@@ -115,7 +115,7 @@ namespace AppCrypto.IniFiles {
 		/// <param name="formatting">Formatting template, where '['-open bracket, '$'-section name, ']'-close bracket, ';'-inline comments.</param>
 		public void Format(string formatting) {
 			char currC;
-			StringBuilder build = new StringBuilder();
+      StringBuilder build = new();
 			for (int i = 0; i < formatting.Length; i++) {
 				currC = formatting[i];
 				if (currC == '$')
@@ -134,7 +134,7 @@ namespace AppCrypto.IniFiles {
 		/// <summary>Crates a IniFileSectionStart object from name of a section.</summary>
 		/// <param name="sectionName">Name of a section</param>
 		public static IniFileSectionStart FromName(string sectionName) {
-			IniFileSectionStart ret = new IniFileSectionStart {
+			IniFileSectionStart ret = new() {
 				SectionName = sectionName
 			};
 			ret.FormatDefault();

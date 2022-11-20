@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AppCrypto.IniFiles {
 	/// <summary>Object model for a section in an INI file, which stores a all values in memory.</summary>
 	public class IniFileSection {
-		internal List<IniFileElement> elements = new List<IniFileElement>();
+		internal List<IniFileElement> elements = new();
 		internal IniFileSectionStart sectionStart;
 		internal IniFile parent;
 
@@ -54,7 +54,7 @@ namespace AppCrypto.IniFiles {
 			int index = parent.elements.IndexOf(el);
 			return index != 0 && parent.elements[index - 1] is IniFileCommentary commentary ? commentary.Comment : "";
 		}
-		IniFileValue GetValue(string key) {
+		IniFileValue? GetValue(string key) {
 			string lower = key.ToLowerInvariant();
 			IniFileValue val;
 			for (int i = 0; i < elements.Count; i++)
@@ -67,19 +67,19 @@ namespace AppCrypto.IniFiles {
 		}
 		/// <summary>Sets the comment for given key.</summary>
 		public void SetComment(string key, string comment) {
-			IniFileValue val = GetValue(key);
+			IniFileValue? val = GetValue(key);
 			if (val == null) return;
 			SetComment(val, comment);
 		}
 		/// <summary>Sets the inline comment for given key.</summary>
 		public void SetInlineComment(string key, string comment) {
-			IniFileValue val = GetValue(key);
+			IniFileValue? val = GetValue(key);
 			if (val == null) return;
 			val.InlineComment = comment;
 		}
 		/// <summary>Gets the inline comment for given key.</summary>
-		public string GetInlineComment(string key) {
-			IniFileValue val = GetValue(key);
+		public string? GetInlineComment(string key) {
+			IniFileValue? val = GetValue(key);
 			if (val == null) return null;
 			return val.InlineComment;
 		}
@@ -90,46 +90,46 @@ namespace AppCrypto.IniFiles {
 		}
 		/// <summary>Gets the comment associated to given key. If there is no comment, empty string is returned.
 		/// If the key does not exist, NULL is returned.</summary>
-		public string GetComment(string key) {
-			IniFileValue val = GetValue(key);
+		public string? GetComment(string key) {
+			IniFileValue? val = GetValue(key);
 			if (val == null) return null;
 			return GetComment(val);
 		}
 		/// <summary>Renames a key.</summary>
 		public void RenameKey(string key, string newName) {
-			IniFileValue v = GetValue(key);
+			IniFileValue? v = GetValue(key);
 			if (key == null) return;
+			if (v == null) return;
 			v.Key = newName;
 		}
 		/// <summary>Deletes a key.</summary>
 		public void DeleteKey(string key) {
-			IniFileValue v = GetValue(key);
+			IniFileValue? v = GetValue(key);
 			if (key == null) return;
+			if (v == null) return;
 			parent.elements.Remove(v);
 			elements.Remove(v);
 		}
 		/// <summary>Gets or sets value of the key</summary>
 		/// <param name="key">Name of key.</param>
-		public string this[string key] {
+		public string? this[string key] {
 			get {
-				IniFileValue v = GetValue(key);
-				return v?.Value;
+				IniFileValue? v = GetValue(key);
+				return (v?.Value);
 			}
 			set {
-				IniFileValue v;
-				v = GetValue(key);
-				//if (!IniFileSettings.AllowEmptyValues && value == "") {
-				//    if (v != null) {
-				//        elements.Remove(v);
-				//        parent.elements.Remove(v);
-				//        return;
-				//    }
-				//}
-				if (v != null) {
-					v.Value = value;
-					return;
+				if (value == null) { 
+					if (key != null) { 
+					  this.DeleteKey(key);
+					}
+			  } else { 
+					IniFileValue? v = GetValue(key);				
+					if (v != null) {
+						v.Value = value;
+						return;
+					}
+					SetValue(key, value);
 				}
-				SetValue(key, value);
 			}
 		}
 		/// <summary>Gets or sets value of a key.</summary>
@@ -137,7 +137,7 @@ namespace AppCrypto.IniFiles {
 		/// <param name="defaultValue">A value to return if the requested key was not found.</param>
 		public string this[string key, string defaultValue] {
 			get {
-				string val = this[key];
+				string? val = this[key];
 				if (val == "" || val == null)
 					return defaultValue;
 				return val;
@@ -145,8 +145,8 @@ namespace AppCrypto.IniFiles {
 			set { this[key] = value; }
 		}
 		private void SetValue(string key, string value) {
-			IniFileValue ret = null;
-			IniFileValue prev = LastValue();
+			IniFileValue? ret = null;
+			IniFileValue? prev = LastValue();
 
 			if (IniFileSettings.PreserveFormatting) {
 				if (prev != null && prev.Intendation.Length >= sectionStart.Intendation.Length)
@@ -164,27 +164,29 @@ namespace AppCrypto.IniFiles {
 					}
 					if (!valFound)
 						ret = IniFileValue.FromData(key, value);
-					if (ret.Intendation.Length < sectionStart.Intendation.Length)
+					if (ret != null && ret.Intendation.Length < sectionStart.Intendation.Length)
 						ret.Intendation = sectionStart.Intendation;
 				}
 			} else
 				ret = IniFileValue.FromData(key, value);
-			if (prev == null) {
-				elements.Insert(elements.IndexOf(sectionStart) + 1, ret);
-				parent.elements.Insert(parent.elements.IndexOf(sectionStart) + 1, ret);
-			} else {
-				elements.Insert(elements.IndexOf(prev) + 1, ret);
-				parent.elements.Insert(parent.elements.IndexOf(prev) + 1, ret);
+			if(ret != null) { 
+				if (prev == null) {
+					elements.Insert(elements.IndexOf(sectionStart) + 1, ret);
+					parent.elements.Insert(parent.elements.IndexOf(sectionStart) + 1, ret);
+				} else {
+					elements.Insert(elements.IndexOf(prev) + 1, ret);
+					parent.elements.Insert(parent.elements.IndexOf(prev) + 1, ret);
+				}
 			}
 		}
-		internal IniFileValue LastValue() {
+		internal IniFileValue? LastValue() {
 			for (int i = elements.Count - 1; i >= 0; i--) {
 				if (elements[i] is IniFileValue value)
 					return value;
 			}
 			return null;
 		}
-		internal IniFileValue FirstValue() {
+		internal IniFileValue? FirstValue() {
 			for (int i = 0; i < elements.Count; i++) {
 				if (elements[i] is IniFileValue value)
 					return value;
@@ -193,7 +195,7 @@ namespace AppCrypto.IniFiles {
 		}
 		/// <summary>Gets an array of names of values in this section.</summary>
 		public System.Collections.ObjectModel.ReadOnlyCollection<string> GetKeys() {
-			List<string> list = new List<string>(elements.Count);
+			List<string> list = new(elements.Count);
 			for (int i = 0; i < elements.Count; i++)
 				if (elements[i] is IniFileValue value)
 					list.Add(value.Key);

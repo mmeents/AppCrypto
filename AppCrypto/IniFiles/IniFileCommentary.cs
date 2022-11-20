@@ -8,47 +8,51 @@ namespace AppCrypto.IniFiles {
 
 	/// <summary>Represents one or more comment lines in a config file.</summary>
 	public class IniFileCommentary : IniFileElement {
-		private string comment;
-		private string commentChar;
+		private string _comment = "";
+		private string? _commentChar = "";
 
-		private IniFileCommentary() {
-		}
+		private IniFileCommentary() { }
 		/// <summary>Initializes a new instance IniFileCommentary</summary>
 		/// <param name="content">Actual content of a line in a INI file.</param>
-		public IniFileCommentary(string content)
-			: base(content) {
+		public IniFileCommentary(string content)	: base(content) {
 			if (IniFileSettings.CommentChars.Length == 0)
-				throw new NotSupportedException("Comments are disabled. Set the IniFileSettings.CommentChars property to turn them on.");
-			commentChar = IniFileSettings.StartsWith(Content, IniFileSettings.CommentChars);
-			if (Content.Length > commentChar.Length)
-				comment = Content.Substring(commentChar.Length);
+				throw new NotSupportedException("Comments are disabled. Set the IniFileSettings.CommentChars property to turn them on.");			
+			_commentChar = IniFileSettings.StartsWith(Content, IniFileSettings.CommentChars);
+			if (_commentChar != null && Content.Length > _commentChar.Length)
+				_comment = Content[_commentChar.Length..];
 			else
-				comment = "";
+				_comment = "";
 		}
 		/// <summary>Gets or sets comment char used in the config file for this comment.</summary>
 		public string CommentChar {
-			get { return commentChar; }
+			get { return _commentChar ?? ""; }
 			set {
-				if (commentChar != value) {
-					commentChar = value; Rewrite();
+				if (_commentChar != value) {
+					_commentChar = value; 
+					Rewrite();
 				}
 			}
 		}
 		/// <summary>Gets or sets a commentary string.</summary>
 		public string Comment {
-			get { return comment; }
+			get { return _comment; }
 			set {
-				if (comment != value) {
-					comment = value; Rewrite();
+				if (_comment != value) {
+					_comment = value; Rewrite();
 				}
 			}
 		}
 		void Rewrite() {
-			StringBuilder newContent = new StringBuilder();
-			string[] lines = comment.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-			newContent.Append(commentChar + lines[0]);
+			StringBuilder newContent = new();
+			string[] lines;
+			if (_comment != null) {
+				lines = _comment.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+			} else {
+				lines = "".Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+			}			
+			newContent.Append(_commentChar + lines[0]);
 			for (int i = 1; i < lines.Length; i++)
-				newContent.Append(Environment.NewLine + commentChar + lines[i]);
+				newContent.Append(Environment.NewLine + _commentChar + lines[i]);
 			Content = newContent.ToString();
 		}
 		/// <summary>Determines whether specified string is a representation of particular IniFileElement object.</summary>
@@ -58,15 +62,15 @@ namespace AppCrypto.IniFiles {
 		}
 		/// <summary>Gets a string representation of this IniFileCommentary object.</summary>
 		public override string ToString() {
-			return "Comment: \"" + comment + "\"";
+			return "Comment: \"" + _comment + "\"";
 		}
 		/// <summary>Gets an IniFileCommentary object from commentary text.</summary>
 		/// <param name="comment">Commentary text.</param>
 		public static IniFileCommentary FromComment(string comment) {
 			if (IniFileSettings.CommentChars.Length == 0)
 				throw new NotSupportedException("Comments are disabled. Set the IniFileSettings.CommentChars property to turn them on.");
-			IniFileCommentary ret = new IniFileCommentary {
-				comment = comment,
+			IniFileCommentary ret = new() {
+				_comment = comment,
 				CommentChar = IniFileSettings.CommentChars[0]
 			};
 			return ret;
