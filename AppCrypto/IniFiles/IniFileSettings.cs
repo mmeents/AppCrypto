@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AppCrypto.IniFiles {
 	/// <summary>Static class containing format settings for INI files.</summary>
 	public static class IniFileSettings {
-		private static IniFlags flags = (IniFlags)255;
+		private static IniFlags flags = (IniFlags)24;
 		private static string[] commentChars = { ";", "#" };
 		private static char? quoteChar = null;
 		private static string defaultValueFormatting = "?=$   ;";
@@ -17,6 +17,7 @@ namespace AppCrypto.IniFiles {
 		private static string tabReplacement = "    ";
 		private static string sectionOpenBracket = "[";
 
+		// GroupElements CaseSensitive 
 		private enum IniFlags {
 			PreserveFormatting = 1, AllowEmptyValues = 2, AllowTextOnTheRight = 4,
 			GroupElements = 8, CaseSensitive = 16, SeparateHeader = 32, AllowBlankLines = 64,

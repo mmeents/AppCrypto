@@ -6,21 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using StaticExtensions;
 
-namespace AppCrypto.Lists {
-  public class CInt32 : ConcurrentDictionary<Int32, object> {
-    public CInt32() : base() { }
-    public Boolean Contains(Int32 aKey) {
-      try { return (base[aKey] is not null); } catch { return false; }
-    }
-    public new object? this[Int32 aKey] { get { try { return base[aKey]; } catch { return null; } } 
-      set { if (value != null) {base[aKey] = value; } else { Remove(aKey); } } }
-    public void Remove(Int32 aKey) {
-      if (Contains(aKey)) {
-        _ = base.TryRemove(aKey, out _);
-      }
-    }
-  }
-
+namespace AppCrypto.CObjects {
+  
   #region class CObject 
   /// <summary> ConcurrentDictionary with String as key is CObject</summary>
   /// <remarks> C is for Concurrent. Most common type is string lookup version so lets call them Objects. </remarks>
@@ -33,6 +20,41 @@ namespace AppCrypto.Lists {
     public void Remove(string aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
   #endregion 
+
+  #region class CInt 
+  public class CInt : ConcurrentDictionary<int, object> {
+    public CInt() : base() { }
+    public Boolean Contains(int aKey) {
+      try { return (base[aKey] is not null); } catch { return false; }
+    }
+    public new object? this[int aKey] {
+      get { try { return base[aKey]; } catch { return null; } }
+      set { if (value != null) { base[aKey] = value; } else { Remove(aKey); } }
+    }
+    public void Remove(int aKey) {
+      if (Contains(aKey)) {
+        _ = base.TryRemove(aKey, out _);
+      }
+    }
+  }
+
+  public class CLong : ConcurrentDictionary<long, object> {
+    public CLong() : base() { }
+    public bool Contains(long aKey) {
+      try { return (base[aKey] is not null); } catch { return false; }
+    }
+    public new object? this[long aKey] {
+      get { try { return base[aKey]; } catch { return null; } }
+      set { if (value != null) { base[aKey] = value; } else { Remove(aKey); } }
+    }
+    public void Remove(long aKey) {
+      if (Contains(aKey)) {
+        _ = base.TryRemove(aKey, out _);
+      }
+    }
+  }
+
+  #endregion
 
   /// <summary> ConcurrentDictionary with Decimal as key ordered is a Cbook. </summary>
   public class CBook : ConcurrentDictionary<decimal, object> {

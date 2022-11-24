@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using StaticExtensions;
 
 namespace AppCrypto.IniFiles {
 	/// <summary>Represents section's start line, e.g. "[SectionName]".</summary>
@@ -30,7 +31,7 @@ namespace AppCrypto.IniFiles {
 					content = content[..closeBracketPos];
 				}
 			}
-			sectionName = content[IniFileSettings.SectionOpenBracket.Length..^IniFileSettings.SectionCloseBracket.Length].Trim();
+			sectionName = content[IniFileSettings.SectionOpenBracket.Length..^IniFileSettings.SectionCloseBracket.Length].ParseFirst("] ");
 			Content = content;
 			Format();
 		}
@@ -54,7 +55,11 @@ namespace AppCrypto.IniFiles {
 		/// <summary>Determines whether specified string is a representation of particular IniFileElement object.</summary>
 		/// <param name="testString">Trimmed test string.</param>
 		public static bool IsLineValid(string testString) {
-			return testString.StartsWith(IniFileSettings.SectionOpenBracket) && testString.EndsWith(IniFileSettings.SectionCloseBracket);
+			string sLocal = testString;
+			if (sLocal.Contains(';')) { 
+				sLocal = sLocal.ParseFirst(";").TrimEnd();
+			}
+			return sLocal.StartsWith(IniFileSettings.SectionOpenBracket) && sLocal.EndsWith(IniFileSettings.SectionCloseBracket);
 		}
 		/// <summary>Gets a string representation of this IniFileSectionStart object.</summary>
 		public override string ToString() {

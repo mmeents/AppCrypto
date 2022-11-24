@@ -23,48 +23,71 @@ namespace TestAppCrypto {
       IniFile iniFile = IniFile.FromFile(filePath);
       iniFile["TestSectionA"]["KeyA"] = "TestStringA";
       iniFile["TestSectionA"]["KeyB"] = "TestStringB";
-      iniFile["TestSectionA"]["KeyC"] = "TestStringC";
-      iniFile["TestSectionA"]["KeyD"] = "TestStringD";
-      iniFile["TestSectionA"]["KeyE"] = "TestStringE";
-      iniFile["TestSectionA"]["KeyF"] = "TestStringF";
+      iniFile["TestSectionB"]["KeyC"] = "TestStringC";
+      iniFile["TestSectionB"]["KeyD"] = "TestStringD";
+      iniFile["TestSectionC"]["KeyE"] = "TestStringE";
+      iniFile["TestSectionC"]["KeyF"] = "TestStringF";
       iniFile.Save(filePath);
 
 
       IniFile iniFile2 = IniFile.FromFile(filePath);
-      Console.WriteLine(iniFile2["TestSectionA"]["KeyA"]);
-      Console.WriteLine(iniFile2["TestSectionA"]["KeyB"]);
-      Console.WriteLine(iniFile2["TestSectionA"]["KeyC"]);
-      Console.WriteLine(iniFile2["TestSectionA"]["KeyD"]);
-      Console.WriteLine(iniFile2["TestSectionA"]["KeyE"]);
-      Console.WriteLine(iniFile2["TestSectionA"]["KeyF"]);
+
+      foreach(string name in iniFile2.GetSectionNames()) {
+        foreach(string key in iniFile2[name].GetKeys()) {
+          Console.WriteLine("Sec: "+ name+" key: "+ key+" value: "+ iniFile2[name][key]);
+        }        
+      }
+
+      Console.WriteLine("SecA:" + iniFile2["TestSectionA"]["KeyA"]);
+      Console.WriteLine("SecA:" + iniFile2["TestSectionA"]["KeyB"]);
+      Console.WriteLine("SecB:" + iniFile2["TestSectionB"]["KeyC"]);
+      Console.WriteLine("SecB:" + iniFile2["TestSectionB"]["KeyD"]);
+      Console.WriteLine("SecC:" + iniFile2["TestSectionC"]["KeyE"]);
+      Console.WriteLine("SecC:" + iniFile2["TestSectionC"]["KeyF"]);
+
+      
 
       iniFile2["TestSectionA"].DeleteKey("KeyA");
       iniFile2["TestSectionA"].DeleteKey("KeyB");
-      iniFile2["TestSectionA"].DeleteKey("KeyC");
-      iniFile2["TestSectionA"].DeleteKey("KeyD");
-      iniFile2["TestSectionA"].DeleteKey("KeyE");
-      iniFile2["TestSectionA"].DeleteKey("KeyF");
+      iniFile2["TestSectionB"].DeleteKey("KeyC");
+      iniFile2["TestSectionB"].DeleteKey("KeyD");
+      iniFile2["TestSectionC"].DeleteKey("KeyE");
+      iniFile2["TestSectionC"].DeleteKey("KeyF");
       iniFile2.Save(filePath);
 
       IniFile iniFile3 = IniFile.FromFile(filePath);
-      Console.WriteLine(iniFile3["TestSectionA"]["KeyA"]);
-      Console.WriteLine(iniFile3["TestSectionA"]["KeyB"]);
-      Console.WriteLine(iniFile3["TestSectionA"]["KeyC"]);
-      Console.WriteLine(iniFile3["TestSectionA"]["KeyD"]);
-      Console.WriteLine(iniFile3["TestSectionA"]["KeyE"]);
-      Console.WriteLine(iniFile3["TestSectionA"]["KeyF"]);
+      Console.WriteLine("a "+ iniFile3["TestSectionA"]["KeyA"]);
+      Console.WriteLine("a " + iniFile3["TestSectionA"]["KeyB"]);
+      Console.WriteLine("a " + iniFile3["TestSectionB"]["KeyC"]);
+      Console.WriteLine("a " + iniFile3["TestSectionB"]["KeyD"]);
+      Console.WriteLine("a " + iniFile3["TestSectionC"]["KeyE"]);
+      Console.WriteLine("a " + iniFile3["TestSectionC"]["KeyF"]);
 
-      Assert.Pass();
     }
     [Test]
     public void TestIniFiles2() {
       string fileFolder = $"{DllExt.MMCommonsFolder()}";
-      string filePath = $"{fileFolder}\\TestIni.Ini";
+      string filePath = $"{fileFolder}\\TestFileVar.Ini";
       if (!Directory.Exists(fileFolder + "\\")) {
         Directory.CreateDirectory(fileFolder + "\\");
       }
       Console.WriteLine($"FilePath {filePath}{Environment.NewLine}FileFolder: {fileFolder}");
-      Assert.Pass();
+
+      FileVar aFV = new(filePath);
+      aFV["Location"] = filePath;
+      aFV["Path"] = fileFolder;
+
+      FileVar bFV = new(filePath);
+      Console.WriteLine("From B Location:"+ bFV["Location"]);
+      Console.WriteLine("From B Path:"+bFV["Path"]);
+
+      FileVar cFV = new(filePath);
+      var varNames = cFV.GetVarNames();
+      foreach(var varName in varNames) {
+        Console.WriteLine("From C "+ varName+": "+cFV[varName]);
+        cFV.RemoveVar(varName);
+      }
+      
     }
   }
 }
