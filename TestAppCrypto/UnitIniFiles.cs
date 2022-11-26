@@ -2,6 +2,8 @@
 using System;
 using NUnit.Framework;
 using AppCrypto.IniFiles;
+using AppCrypto.Models;
+using AppCrypto.Services;
 using StaticExtensions;
 using System.IO;
 
@@ -12,7 +14,7 @@ namespace TestAppCrypto {
     }
 
     [Test]
-    public void TestIniFiles1() {
+    public void TestIniFiles() {
       string fileFolder = $"{DllExt.MMCommonsFolder()}";
       string filePath = $"{fileFolder}\\TestIni.Ini";
       if (!Directory.Exists(fileFolder + "\\")) {
@@ -65,7 +67,7 @@ namespace TestAppCrypto {
 
     }
     [Test]
-    public void TestIniFiles2() {
+    public void TestFileVar() {
       string fileFolder = $"{DllExt.MMCommonsFolder()}";
       string filePath = $"{fileFolder}\\TestFileVar.Ini";
       if (!Directory.Exists(fileFolder + "\\")) {
@@ -88,6 +90,22 @@ namespace TestAppCrypto {
         cFV.RemoveVar(varName);
       }
       
+    }
+
+    [Test]
+    public void TestDBConnectionService() { 
+
+      var TestKey = new AppKey("mConMgrBaseAlpha");
+
+      DBConnectionService TestService = new DBConnectionService(TestKey, "TestSettings");
+      DbConnectionInfo ConnInfo = TestService.GetConnectionInfo("TS");
+      if (ConnInfo == null) { 
+        DbConnectionInfo dbInfo = new DbConnectionInfo("TS", "data source=DESKTOP-DELICI0;initial catalog=ARC01;user id=website;password=qQ#Qw5S!25byAuY3;Connection Timeout=15");
+        TestService.AddUpdate("TS", dbInfo);
+      }
+      ConnInfo = TestService.GetConnectionInfo("TS");
+
+      Console.WriteLine(ConnInfo?.ConnectionName??" name was null");
     }
   }
 }

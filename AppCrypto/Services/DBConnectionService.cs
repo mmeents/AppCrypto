@@ -15,21 +15,24 @@ namespace AppCrypto.Services {
     public string FileName = "";
     public string sProvider = "System.Data.SqlClient";
     public CSecureVar ivFile;
-    private readonly AppKey kpBaseKey;
+    private readonly AppKey _appKey;
     public DBConnectionService(AppKey aAppKey, string? aFileName ) {
-      kpBaseKey = aAppKey;
+      _appKey = aAppKey;
       if ( aFileName != null ) { 
         sDefaultName = aFileName;
       }
-      FieldInfo? CfgMgrReadOnlyField = typeof(ConfigurationElementCollection).GetField("bReadOnly", BindingFlags.Instance | BindingFlags.NonPublic);
+      if ( ConfigurationManager.ConnectionStrings == null) { 
+         throw new Exception("Project requires App.config file with ConnectionString node.");
+      }
+      FieldInfo? CfgMgrReadOnlyField = typeof(ConfigurationElementCollection).GetField("_readOnly", BindingFlags.Instance | BindingFlags.NonPublic);
       if (CfgMgrReadOnlyField is not null) {
         CfgMgrReadOnlyField.SetValue(ConfigurationManager.ConnectionStrings, false);
       }           
-      FileName = DllExt.MMConLocation() + "\\" + sDefaultName + ".con2";
-      if (!Directory.Exists(DllExt.MMConLocation() + "\\")) {
-        Directory.CreateDirectory(DllExt.MMConLocation() + "\\");
+      FileName = DllExt.MMCommonsFolder() + "\\" + sDefaultName + ".con2";
+      if (!Directory.Exists(DllExt.MMCommonsFolder() + "\\")) {
+        Directory.CreateDirectory(DllExt.MMCommonsFolder() + "\\");
       }
-      ivFile = new CSecureVar(kpBaseKey, FileName);
+      ivFile = new CSecureVar(_appKey, FileName);
       Load();
     }    
     public void Load() {
@@ -49,7 +52,7 @@ namespace AppCrypto.Services {
       }
     }
 
-    public static DbConnectionInfo? GetConnectionInfo(string connectionName) { 
+    public DbConnectionInfo? GetConnectionInfo(string connectionName) { 
       ConnectionStringSettings? cx = GetConnectionStringSetting(connectionName);
       return cx is null ? null : new DbConnectionInfo(connectionName, cx.ConnectionString);
     }
