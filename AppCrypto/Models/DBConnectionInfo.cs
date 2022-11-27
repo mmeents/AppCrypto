@@ -64,7 +64,6 @@ namespace AppCrypto.Models {
 			} else {
 				sb.Append("Integrated Security=SSPI;");
 			}
-			sb.Append("TransparentNetworkIPResolution=False;");
 			return sb.ToString();
 		}
 
