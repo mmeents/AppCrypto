@@ -9,19 +9,24 @@
     <Copyright>Copyright © 2022 Sky High Productions, LLC</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/mmeents/AppCrypto</RepositoryUrl>
-    <PackageTags>Reusable Custom Common Objects C#</PackageTags>
+    <PackageTags>Reusable Common Concurrent Dictionaries IniFiles</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GenerateAssemblyFileVersionAttribute>False</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>False</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyVersionAttribute>False</GenerateAssemblyVersionAttribute>
     <Version>1.0.1</Version>
-    <Description>Reusable Custom Common Objects</Description>
+    <Description>Reusable Helpers and Cuncurrent Dictionaries and IniFile </Description>
     <PackageProjectUrl>https://github.com/mmeents/AppCrypto</PackageProjectUrl>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <PackageIcon>flame.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="..\flame.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -29,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="StaticExtensions" Version="2.0.1" />
+    <PackageReference Include="StaticExtensions" Version="2.0.2" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
   </ItemGroup>
 
