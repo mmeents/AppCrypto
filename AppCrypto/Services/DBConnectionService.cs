@@ -80,6 +80,11 @@ namespace AppCrypto.Services {
       } 
       Write();
     }
+
+    public void RemoveConnection(string connectionName) { 
+      ConfigurationManager.ConnectionStrings.Remove(connectionName);
+      ivFile.RemoveVar(connectionName);      
+    }
     
     public static ConnectionStringSettings? GetConnectionStringSetting(string sConName) {
       ConnectionStringSettings? cs = null;
