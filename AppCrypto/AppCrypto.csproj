@@ -15,7 +15,7 @@
     <GenerateAssemblyFileVersionAttribute>False</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>False</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyVersionAttribute>False</GenerateAssemblyVersionAttribute>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Description>Reusable Helpers and Cuncurrent Dictionaries and IniFile </Description>
     <PackageProjectUrl>https://github.com/mmeents/AppCrypto</PackageProjectUrl>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
