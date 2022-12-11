@@ -76,10 +76,10 @@ namespace AppCrypto.CObjects {
 
   #region public class CCache variants 
   /// <summary>ConcurrentDictionary with Short Integer key ordered from Max to Min, add smallest, pop largest last is a CCache16</summary>  
-  public class CCache16 : ConcurrentDictionary<Int16, object> {
-    public Int16 Nonce = Int16.MaxValue;
-    public Int16 Height => Convert.ToInt16(Int16.MaxValue.AsInt() - this.Nonce.AsInt());
-    public Boolean Contains(Int16 aKey) {
+  public class CCache16 : ConcurrentDictionary<short, object> {
+    public short Nonce = short.MaxValue;
+    public short Height => Convert.ToInt16(short.MaxValue.AsInt() - this.Nonce.AsInt());
+    public Boolean Contains(short aKey) {
       try { return (base[aKey] is not null); } catch { return false; }
     }
     public CCache16() : base() { }
@@ -89,7 +89,7 @@ namespace AppCrypto.CObjects {
       if (Keys.Count > 0) { base.TryRemove(base.Keys.OrderBy(x => x).Last(), out aR); }
       return aR;
     }
-    public void Remove(Int16 aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
+    public void Remove(short aKey) { if (Contains(aKey)) { _ = base.TryRemove(aKey, out _); } }
   }
 
   /// <summary>ConcurrentDictionary with Int32 key ordered from Max to Min, add smallest, pop largest last is a CCache32 </summary>  

@@ -56,7 +56,7 @@ namespace AppCrypto.Services {
       return ivFile.GetVarNames();
     }
 
-    public int GetActiveConnectionCounts() { 
+    public static int GetActiveConnectionCounts() { 
       return ConfigurationManager.ConnectionStrings.Count;
     }
 
@@ -64,7 +64,7 @@ namespace AppCrypto.Services {
       return GetConnectionNames().Count;
     }
 
-    public DbConnectionInfo? GetConnectionInfo(string connectionName) { 
+    public static DbConnectionInfo? GetConnectionInfo(string connectionName) { 
       ConnectionStringSettings? cx = GetConnectionStringSetting(connectionName);
       return cx is null ? null : new DbConnectionInfo(connectionName, cx.ConnectionString);
     }

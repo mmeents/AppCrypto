@@ -97,13 +97,13 @@ namespace TestAppCrypto {
 
       var TestKey = new AppKey("mConMgrBaseAlpha");
 
-      DBConnectionService TestService = new DBConnectionService(TestKey, "TestSettings");
-      DbConnectionInfo? ConnInfo = TestService.GetConnectionInfo("TS");
+      DBConnectionService TestService = new(TestKey, "TestSettings");
+      DbConnectionInfo? ConnInfo = DBConnectionService.GetConnectionInfo("TS");
       if (ConnInfo == null) { 
-        DbConnectionInfo dbInfo = new DbConnectionInfo("TS", "data source=Server;initial catalog=DatabaseA;user id=website;password=qQ#Qw5S!25byAuY3;Connection Timeout=15");
+        DbConnectionInfo dbInfo = new("TS", "data source=Server;initial catalog=DatabaseA;user id=website;password=qQ#Qw5S!25byAuY3;Connection Timeout=15");
         TestService.AddUpdate("TS", dbInfo);
       }
-      ConnInfo = TestService.GetConnectionInfo("TS");
+      ConnInfo = DBConnectionService.GetConnectionInfo("TS");
 
       Console.WriteLine(ConnInfo?.ConnectionName??" name was null");
     }
